@@ -27,8 +27,6 @@ const sendToSqs = async (rawPath, event, isGET = false) => {
     QueueUrl: SqsQueueUrl,
   };
 
-  // console.debug("MessageBody: ", JSON.stringify(messageToSend));
-
   const response = await sqsClient.send(new SendMessageCommand(sqsInput));
   console.debug("SQS Response: ", response.$metadata.httpStatusCode);
 

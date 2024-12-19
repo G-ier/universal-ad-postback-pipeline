@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Ads Postbacks Controller
+
+Resources:
+
+  AdsReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt AdsReporterFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: Ads-postbacks-controller
+      Description: Receives Ads Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: ads
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ads-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: ads
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ads-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: ads
+
+  # Log group for the lambda function
+  AdsReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AdsReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: ads
+
+  # IAM role for lambda function
+  AdsReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AdsReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: ads
+
+Outputs:
+
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref AdsReporterFunction.Version
+
+  AdsQueueUrl:
+    Description: URL of the ads Postbacks Queue
+    Export:
+      Name: AdsQueueUrl
+    Value: !Ref ConversionEventsQueue

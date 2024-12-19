@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lunard Postbacks Controller
+
+Resources:
+
+  LunardReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt LunardReporterFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: Lunard-postbacks-controller
+      Description: Receives Lunard Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: lunard
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: lunard-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: lunard
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: lunard-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: lunard
+
+  # Log group for the lambda function
+  LunardReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LunardReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: lunard
+
+  # IAM role for lambda function
+  LunardReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LunardReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: lunard
+
+Outputs:
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref LunardReporterFunction.Version
+
+  LunardQueueUrl:
+    Description: URL of the lunard Postbacks Queue
+    Export:
+      Name: LunardQueueUrl
+    Value: !Ref ConversionEventsQueue

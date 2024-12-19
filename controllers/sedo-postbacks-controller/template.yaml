@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SEDO Postbacks Controller
+
+Resources:
+
+  SedoReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt SedoReporterFunctionRole.Arn
+      Handler: app.handler
+      FunctionName: sedo-postbacks-controller
+      Description: Receives Sedo Postbacks from a Queue and forwards them to different destinations
+      Runtime: nodejs18.x
+      Timeout: 30
+      MemorySize: 128
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+          CLICKHOUSE_HOST: https://d06vxahi4g.us-east-1.aws.clickhouse.cloud:8443
+          CLICKHOUSE_PASSWORD: zq677PVJdg~sW
+          CLICKHOUSE_USER: default
+          CLICKHOUSE_DATABASE: efflux
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: sedo
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: sedo-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: sedo-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo
+
+  # Log group for the lambda function
+  SedoReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${SedoReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo
+
+  # IAM role for lambda function
+  SedoReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SedoReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+              - Effect: Allow
+                Action: "secretsmanager:*"
+                Resource: "*"
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo
+
+Outputs:
+  SedoQueueUrl:
+    Description: URL of the Sedo Postbacks Queue
+    Export:
+      Name: SedoQueueUrl
+    Value: !Ref ConversionEventsQueue
