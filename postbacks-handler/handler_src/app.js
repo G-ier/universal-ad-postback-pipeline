@@ -8,13 +8,12 @@ const sqsClient = new SQSClient({ region: "us-east-1" });
 
 const bucket = process.env.RAW_BUCKET_NAME || "raw-postback-events";
 
-const s2s_bucket = process.env.RAW_BUCKET_NAME || "events-s2s"; //s2s-events-processor-bucket-524744845066 was original
-
 const SqsQueueUrl = process.env.POSTBACKS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/partners-postback-events";
 const SedoSQSQueueUrl = process.env.SEDO_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/sedo-postbacks-queue";
 const TonicSQSQueueUrl = process.env.TONIC_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/tonic-postbacks-queue"
 const AdsSQSQueueUrl = process.env.ADS_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/ads-postbacks-queue"
 const LunardQueueUrl = process.env.LUNARD_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/lunard-postbacks-queue"
+const CrossroadsQueueUrl = process.env.CROSSROADS_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/crossroads-postbacks-queue"
 
 exports.handler = async (event) => {
   console.debug("Event: ", event);
@@ -55,16 +54,6 @@ exports.handler = async (event) => {
 
   console.debug("S3 Response: ", response.$metadata.httpStatusCode);
 
-  // TODO: Activate when the functionality is activated on new AWS account
-  // // SEND TO OTHER BUCKET
-  // const input_s2s = {
-  //   Bucket: s2s_bucket,
-  //   Key: network + "/" + key,
-  //   Body: JSON.stringify(message),
-  // };
-  // const responses2s = await s3Client.send(new PutObjectCommand(input_s2s));
-  // console.debug("S3 Response: ", responses2s.$metadata.httpStatusCode);
-
   await deleteMessage(receiptHandle);
 
   if (message.event_network === 'sedo') {
@@ -101,6 +90,16 @@ exports.handler = async (event) => {
     // Push the message to a queue.
     const sqsInput = {
       QueueUrl: LunardQueueUrl,
+      MessageBody: JSON.stringify(message),
+    };
+    const response = await sqsClient.send(new SendMessageCommand(sqsInput));
+    console.debug("SQS Response: ", response.$metadata.httpStatusCode);
+  }
+
+  if (message.event_network === 'crossroads') {
+    // Push the message to a queue.
+    const sqsInput = {
+      QueueUrl: CrossroadsQueueUrl,
       MessageBody: JSON.stringify(message),
     };
     const response = await sqsClient.send(new SendMessageCommand(sqsInput));
