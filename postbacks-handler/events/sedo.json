@@ -1,0 +1,50 @@
+{
+  "is_get": true,
+  "event": {
+      "version": "2.0",
+      "routeKey": "GET /efsdv1",
+      "rawPath": "/efsdv1",
+      "rawQueryString": "sub1=direct&sub2=120206039431130154%7C120206039431110154%7C120206039431180154%7Cfacebook&sub3=direct_id&revenue=0.7477&domain=instant-migraine-treatments-usa.site&txid=65c794a8d0b9d&click_timestamp=1707578399",
+      "headers": {
+          "accept": "*/*",
+          "content-length": "0",
+          "host": "safetracklinks.com",
+          "user-agent": "Sedoparking Click Postback",
+          "x-amzn-trace-id": "Root=1-65c7965b-37bfa58b3452bbd0207d67ae",
+          "x-forwarded-for": "91.195.241.6",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https"
+      },
+      "queryStringParameters": {
+          "click_timestamp": "1707578399",
+          "domain": "instant-migraine-treatments-usa.site",
+          "revenue": "0.7477",
+          "sub1": "direct",
+          "sub2": "120206039431130154|120206039431110154|120206039431180154|facebook",
+          "sub3": "direct_id",
+          "txid": "65c794a8d0b9d"
+      },
+      "requestContext": {
+          "accountId": "524744845066",
+          "apiId": "cofl598qqh",
+          "domainName": "safetracklinks.com",
+          "domainPrefix": "safetracklinks",
+          "http": {
+              "method": "GET",
+              "path": "/efsdv1",
+              "protocol": "HTTP/1.1",
+              "sourceIp": "91.195.241.6",
+              "userAgent": "Sedoparking Click Postback"
+          },
+          "requestId": "S7RuSj5oIAMEP5A=",
+          "routeKey": "GET /efsdv1",
+          "stage": "$default",
+          "time": "10/Feb/2024:15:29:31 +0000",
+          "timeEpoch": 1707578971182
+      },
+      "isBase64Encoded": false
+  },
+  "received_at": 1707578971239,
+  "event_network": "sedo",
+  "is_postback": 1
+}

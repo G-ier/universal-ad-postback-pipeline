@@ -1,0 +1,57 @@
+{
+  "Records": [
+    {
+      "body": {
+        "is_get": true,
+        "event": {
+            "version": "2.0",
+            "routeKey": "GET /eftnv1",
+            "rawPath": "/eftnv1",
+            "rawQueryString": "subid1=Mozilla%2F5.0+%28iPhone%3B+CPU+iPhone+OS+18_1_1+like+Mac+OS+X%29+AppleWebKit%2F605.1.15+%28KHTML%2C+like+Gecko%29+Mobile%2F22B91+Instagram+339.0.3.12.91+%28iPhone14%2C5%3B+iOS+18_1_1%3B+ja_JP%3B+ja%3B+scale%3D3.00%3B+1170x2532%3B+619461904%3B+IABMV%2F1%29&subid2=2144319275769513_%7C_%7Bdgianma%7D_%7C_%7Bagjiato%7D_%7C_%7Btrafour%7D_%7C_facebook_%7C_64ddfd29-9421-4da4-809f-4f4243ed4594&subid3=PAZXh0bgNhZW0BMABhZGlkAasX_b3e840Bpo4s1pwxoGG7bzTxnSsPiAk3hYjfIA-gOzY3U4mu_WGFE6tf0RNe78YLgQ_aem_hQUIyvn4F_Pg-qBDRv0TkA&subid4=114.150.222.3_%7C_JP_%7C_Kanagawa_%7C_Zushi_%7C_1734609080_%7C_002_FB_ModHouses_Tonic_JP_JP_AccountLabel_FN8538-PST103_ROI%7CAbdul%7CEcomm%7CUS_Test_2024-12-19&timestamp=1734609091&revenue=%7Brevenue%7D&kwp=%E3%83%A2%E3%83%80%E3%83%B3%E3%83%8F%E3%82%A6%E3%82%B9+%E9%80%97%E5%AD%90&type=click",
+            "headers": {
+                "content-length": "0",
+                "host": "sftrklnk.com",
+                "user-agent": "GuzzleHttp/7",
+                "x-amzn-trace-id": "Root=1-67640a25-58ba57dd061ccc150d4acd30",
+                "x-forwarded-for": "46.137.22.65",
+                "x-forwarded-port": "443",
+                "x-forwarded-proto": "https"
+            },
+            "queryStringParameters": {
+                "kwp": "モダンハウス 逗子",
+                "revenue": "{revenue}",
+                "subid1": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22B91 Instagram 339.0.3.12.91 (iPhone14,5; iOS 18_1_1; ja_JP; ja; scale=3.00; 1170x2532; 619461904; IABMV/1)",
+                "subid2": "2144319275769513_|_{dgianma}_|_{agjiato}_|_{trafour}_|_facebook_|_64ddfd29-9421-4da4-809f-4f4243ed1594",
+                "subid3": "PAZXh0bgNhZW0BMABhZGlkAasX_b3e840Bpo4s1pwxoGG7bzTxnSsPiAk3hYjfIA-gOzY3U4mu_WGFE6tf0RNe78YLgQ_aem_hQUIyvn4F_Pg-qBDRv0TkA",
+                "subid4": "114.150.222.3_|_JP_|_Kanagawa_|_Zushi_|_1734609080_|_002_FB_ModHouses_Tonic_JP_JP_AccountLabel_FN8538-PST103_ROI|Abdul|Ecomm|US_Test_2024-12-19",
+                "timestamp": "1734609091",
+                "type": "click"
+            },
+            "requestContext": {
+                "accountId": "033156084586",
+                "apiId": "wqoj7agtd7",
+                "domainName": "sftrklnk.com",
+                "domainPrefix": "sftrklnk",
+                "http": {
+                    "method": "GET",
+                    "path": "/eftnv1",
+                    "protocol": "HTTP/1.1",
+                    "sourceIp": "46.137.22.65",
+                    "userAgent": "GuzzleHttp/7"
+                },
+                "requestId": "DCaF4gI6IAMEPBA=",
+                "routeKey": "GET /eftnv1",
+                "stage": "$default",
+                "time": "19/Dec/2024:11:57:25 +0000",
+                "timeEpoch": 1734609445239
+            },
+            "isBase64Encoded": false
+        },
+        "received_at": "1734609445303",
+        "event_network": "tonic",
+        "is_postback": "1"
+      }
+      
+    }
+  ]
+}

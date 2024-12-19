@@ -1,0 +1,415 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Postback Handlers for Crossroads, TONIC MediaNet & SEDO, Lunard
+
+Parameters:
+  ShortLogsRetentionInDays:
+    Type: Number
+    Default: 5
+    Description: Number of days to retain logs in CloudWatch Logs
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    Architectures:
+      - arm64
+    Runtime: nodejs20.x
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Enabled: true
+      # Type: Linear10PercentEvery1Minute
+      Type: AllAtOnce
+    Tags:
+      project: efflux
+      operation: postbacks
+
+Resources:
+
+  ############################################
+  # S3 Bucket
+  ############################################
+
+  DataLakeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: raw-postback-events
+      AccessControl: AwsExecRead
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionToOneZoneIA
+            Status: Enabled
+            Transitions:
+              - StorageClass: ONEZONE_IA
+                TransitionInDays: 30
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  # logging for the API Gateway
+  PbHandlerHttpApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/http-api/postback-handler-${AWS::StackName}
+      RetentionInDays: !Ref ShortLogsRetentionInDays
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  PbHandlerHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: Postbacks-handler-API
+      FailOnWarnings: false
+      DisableExecuteApiEndpoint: true
+      # Add logging
+      AccessLogSettings:
+        DestinationArn: !GetAtt PbHandlerHttpApiLogGroup.Arn
+        Format: $context.identity.sourceIp - - [$context.requestTime]
+          "$context.httpMethod $context.routeKey $context.protocol"
+          $context.status $context.responseLength $context.requestId
+      Domain:
+        DomainName: sftrklnk.com
+        CertificateArn: arn:aws:acm:us-east-1:033156084586:certificate/097330bf-2e97-4f10-8924-8a75f639aef6
+        Route53:
+          HostedZoneId: Z001515737XT3IMJEERCQ
+          DomainName: sftrklnk.com
+          IpV6: true
+          EvaluateTargetHealth: false
+      Description: Handles postbacks for SEDO, TONIC, MediaNet, Crossroads, Lunard
+      DefaultRouteSettings:
+        DetailedMetricsEnabled: false
+        DataTraceEnabled: false
+        ThrottlingBurstLimit: 53
+        ThrottlingRateLimit: 38
+      CorsConfiguration:
+        AllowMethods:
+          - POST
+          - GET
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Amz-User-Agent
+          - X-forwarded-for
+          - X-Forwarded-Proto
+          - X-Forwarded-Port
+          - X-Forwarded-Host
+        AllowOrigins:
+          - '*' # ! For local dev only, remove in prod
+      Tags:
+        project: efflux
+        operation: postbacks
+
+  # IAM role for the API Gateway
+  PbHandlerHttpApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PbHandlerHttpApiPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*' # ! Change to specific ARN
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: s3:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+              - Effect: Allow
+                Action: execute-api:*
+                Resource: '*'
+
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  ############################################
+  # Lambda Proxy Functions
+  ############################################
+
+  ProxyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./proxy_src
+      Handler: app.handler
+      FunctionName: proxy-postbacks-handler
+      Role: !GetAtt ProxyHandlerFunctionRole.Arn
+      Description: Proxy incoming postback requests to the appropriate handler
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt PostbacksSqsQueue.QueueName
+        - SQSReceiveMessagePolicy:
+            QueueName: !GetAtt PostbacksSqsQueue.QueueName
+        - SQSPollerPolicy:
+            QueueName: !GetAtt PostbacksSqsQueue.QueueName
+      Environment:
+        Variables:
+          POSTBACKS_QUEUE_URL: !GetAtt PostbacksSqsQueue.QueueUrl
+      Events:
+        SedoEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efsdv1
+            Method: POST
+        SedoEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efsdv1
+            Method: GET
+        TonicEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /eftnv1
+            Method: POST
+        TonicEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /eftnv1
+            Method: GET
+        CrossroadsEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efdav1
+            Method: POST
+        CrossroadsEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efdav1
+            Method: GET
+        EpcvipOneEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efepcv1
+            Method: GET
+        EpcvipOneEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efepcv1
+            Method: POST
+        MediaNetEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efmnv1
+            Method: POST
+        AdsEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efadsv1
+            Method: GET
+        AdsEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efadsv1
+            Method: POST
+        LunardEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efyuv1
+            Method: GET
+        LunardEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efyuv1
+            Method: POST
+      Tags:
+        project: efflux
+        operation: postbacks
+
+  ProxyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProxyFunction}
+      RetentionInDays: !Ref ShortLogsRetentionInDays
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  ############################################
+  # Handler
+  ############################################
+
+  PostbacksSqsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: partners-postback-events
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt PostbacksSqsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  # Add a DLQ for the queue
+  PostbacksSqsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: partners-postback-events-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  PostbacksHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./handler_src
+      Handler: app.handler
+      FunctionName: partners-postbacks-handler
+      Role: !GetAtt PostbacksHandlerFunctionRole.Arn
+      Description: Handles postbacks for SEDO, TONIC, MediaNet & Crossroads
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref DataLakeBucketName
+        - S3ReadPolicy:
+            BucketName: !Ref DataLakeBucketName
+        - S3FullAccessPolicy:
+            BucketName: !Ref DataLakeBucketName
+        - SQSPollerPolicy:
+            QueueName: !Ref PostbacksSqsQueue
+        - SQSReceiveMessagePolicy:
+            QueueName: !Ref PostbacksSqsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref PostbacksSqsQueue
+          SEDO_SQS_QUEUE_URL: !ImportValue SedoQueueUrl
+          TONIC_SQS_QUEUE_URL: !ImportValue TonicQueueUrl
+          ADS_SQS_QUEUE_URL: !ImportValue AdsQueueUrl
+          LUNARD_SQS_QUEUE_URL: !ImportValue LunardQueueUrl
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt PostbacksSqsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        operation: postbacks
+
+  PostbacksHandlerFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Delete
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PostbacksHandlerFunction}
+      RetentionInDays: !Ref ShortLogsRetentionInDays
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  # IAM role for both lambda functions
+  PostbacksHandlerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PostbacksHandlerFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:*
+                Resource: '*'
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+  ProxyHandlerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ProxyHandlerFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:*
+                Resource: '*'
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+
+Outputs:
+  ApiEndpoint:
+    Description: Postbacks Handler API Gateway Endpoint
+    Value: !Sub https://${PbHandlerHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+    Export:
+      Name: PbHandlerHttpApi-Endpoint

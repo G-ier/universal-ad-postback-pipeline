@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Tonic Postbacks Controller
+
+Resources:
+
+  TonicReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt TonicReporterFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: Tonic-postbacks-controller
+      Description: Receives Tonic Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: tonic
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: tonic-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: tonic
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: tonic-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: tonic
+
+  # Log group for the lambda function
+  TonicReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${TonicReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: tonic
+
+  # IAM role for lambda function
+  TonicReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TonicReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: tonic
+
+Outputs:
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref TonicReporterFunction.Version
+
+  TonicQueueUrl:
+    Description: URL of the tonic Postbacks Queue
+    Export:
+      Name: TonicQueueUrl
+    Value: !Ref ConversionEventsQueue

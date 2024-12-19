@@ -1,0 +1,45 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /da",
+  "rawPath": "/da",
+  "rawQueryString": "",
+  "headers": {
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, br",
+      "content-length": "283",
+      "content-type": "application/json",
+      "host": "g8c3gmovpf.execute-api.us-east-1.amazonaws.com",
+      "newrelic": "eyJ2IjpbMCwxXSwiZCI6eyJ0eSI6IkFwcCIsImFjIjoiNDI2MTMxOCIsImFwIjoiMTA2MDM2MDg3MSIsInR4IjoiNGYwZTk4N2ZkZDI5NjNjZSIsInRyIjoiNDg3YTkyMDE2ODU3MTUzOTM2MTVmZWYzNzIyODIyMDMiLCJwciI6MC45MDg2NTYsInNhIjpmYWxzZSwidGkiOjE3MDcyNjA0NzA5NzF9fQ==",
+      "request": "{\"x-forwarded-for\":\"38.29.178.33\",\"x-forwarded-proto\":\"https\",\"x-forwarded-port\":\"443\",\"host\":\"betrk.net\",\"x-amzn-trace-id\":\"Root=1-65c2ba36-1ae316e60bf7af7d61705f7d\",\"sec-ch-ua\":\"\\\"Not A(Brand\\\";v=\\\"99\\\", \\\"Android WebView\\\";v=\\\"121\\\", \\\"Chromium\\\";v=\\\"121\\\"\",\"sec-ch-ua-mobile\":\"?1\",\"user-agent\":\"Mozilla/5.0 (Linux; Android 13; 9138S Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/121.0.6167.143 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/450.0.0.41.110;]\",\"sec-ch-ua-platform\":\"\\\"Android\\\"\",\"accept\":\"*/*\",\"x-requested-with\":\"com.facebook.katana\",\"sec-fetch-site\":\"cross-site\",\"sec-fetch-mode\":\"no-cors\",\"sec-fetch-dest\":\"script\",\"referer\":\"https://roadpavers.today/\",\"accept-encoding\":\"gzip, deflate, br\",\"accept-language\":\"en-US,en;q=0.9\"}",
+      "traceparent": "00-487a9201685715393615fef372282203-6a75edd90f6b642b-00",
+      "tracestate": "4261318@nr=0-0-4261318-1060360871-6a75edd90f6b642b-4f0e987fdd2963ce-0-0.908656-1707260470971",
+      "user-agent": "node-fetch",
+      "x-amzn-trace-id": "Root=1-65c2ba36-5f78d87a375c31111cd94eb3",
+      "x-forwarded-for": "34.227.108.161",
+      "x-forwarded-port": "443",
+      "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+      "accountId": "524744845066",
+      "apiId": "g8c3gmovpf",
+      "domainName": "g8c3gmovpf.execute-api.us-east-1.amazonaws.com",
+      "domainPrefix": "g8c3gmovpf",
+      "http": {
+          "method": "POST",
+          "path": "/da",
+          "protocol": "HTTP/1.1",
+          "sourceIp": "34.227.108.161",
+          "userAgent": "node-fetch"
+      },
+      "requestId": "SvIIohGEoAMEVWg=",
+      "routeKey": "POST /da",
+      "stage": "$default",
+      "time": "06/Feb/2024:23:01:10 +0000",
+      "timeEpoch": 1707260470973
+  },
+  "body": "{\"tg1\":\"6836 - ROI Ads LLC - PST61 | BS_FB_US_AsphaltPaving_201223_Purchase_260124 - 2\",\"tg2\":\"120205588441940562\",\"tg3\":\"\",\"tg4\":\"\",\"tg5\":\"120205588442010562\",\"tg6\":\"\",\"kwp\":\"\",\"src\":\"fbk\",\"eventType\":\"PageView\",\"value\":\"0.73\",\"running_direct\":\"true\",\"step\":\"1\",\"_\":\"1707260469971\"}",
+  "isBase64Encoded": false,
+  "received_timestamp": "2024-02-06T23:01:10.989Z",
+  "event_type": "da",
+  "event_network": "crossroads"
+}
