@@ -71,6 +71,9 @@ function parseTonicPBData(pb_event) {
       );
 
   const date_hour = isTimestampValid ? convertUnixTimestampToUTCTimestamp(click_timestamp, 'UTC') : click_timestamp;
+  
+  // Modify the country_code to ensure it's always 2 characters
+  country_code = country_code === "Unknown" ? "XX" : country_code.substring(0, 2);
 
   return {
 

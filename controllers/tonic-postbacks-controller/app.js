@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
     const parsedMessage = JSON.parse(message);
     const pb_data = parseTonicPBData(parsedMessage);
     const clickhouseRepository = new ClickhouseRepository();
-    await clickhouseRepository.insert("postback_events: ", pb_data);
+    await clickhouseRepository.insert("postback_events", pb_data);
   } catch (e) {
     console.error(`Error saving event to ClickHouse ${e}`);
     return {
