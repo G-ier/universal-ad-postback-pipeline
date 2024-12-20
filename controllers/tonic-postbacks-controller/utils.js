@@ -55,7 +55,7 @@ function parseTonicPBData(pb_event) {
   const external = insight.subid3;
 
   const subid4Matches = insight.subid4 ? insight.subid4.split("_|_") : ["Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"];
-  const [ip, country_code, region, city, timestamp, campaign_name] = subid4Matches;
+  let [ip, country_code, region, city, timestamp, campaign_name] = subid4Matches;
 
   // Decoding the campaign names.
   const ts_campaign_name = campaign_name ? decodeAndFormatString(campaign_name) : "Unknown";
