@@ -1,9 +1,9 @@
 AWS_REGION ?= us-east-1
 AWS_ACCOUNT_ID ?= 033156084586
 AWS_PROFILE ?= new-efflux
-STACK_NAME ?= lunard-postbacks-controller
+STACK_NAME ?= medianet-postbacks-controller
 
-deploy-stack: 
+deploy-stack:
 	@echo "Deploying stack using SAM"
 	@sam deploy \
 		--no-confirm-changeset \
@@ -40,5 +40,4 @@ run-local:
 		--event events/event.json \
 		--region $(AWS_REGION) \
 		--profile $(AWS_PROFILE) \
-		--env-vars env.json \
 		--debug

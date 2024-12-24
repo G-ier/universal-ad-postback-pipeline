@@ -1,7 +1,7 @@
 "use strict";
 
 // Local modules
-const { parseTonicPBData } = require("./utils");
+const { parseAirfindPBData } = require("./utils");
 const ClickhouseRepository = require("./ClickHouseRepository");
 
 exports.handler = async (event, context) => {
@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
     console.debug("Event received", event);
     const message = event.Records[0].body;
     const parsedMessage = JSON.parse(message);
-    const pb_data = parseTonicPBData(parsedMessage);
+    const pb_data = parseAirfindPBData(parsedMessage);
     const clickhouseRepository = new ClickhouseRepository();
     await clickhouseRepository.insert("postback_events", pb_data);
   } catch (e) {

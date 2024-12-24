@@ -1,18 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Lunard Postbacks Controller
+Description: Medianet Postbacks Controller
 
 Resources:
 
-  LunardReporterFunction:
+  MedianetReporterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Role: !GetAtt LunardReporterFunctionRole.Arn
+      Role: !GetAtt MedianetReporterFunctionRole.Arn
       Architectures:
         - arm64
       Handler: app.handler
-      FunctionName: Lunard-postbacks-controller
-      Description: Receives Lunard Postbacks from a Queue and forwards them to different
+      FunctionName: Medianet-postbacks-controller
+      Description: Receives Medianet Postbacks from a Queue and forwards them to different
         destinations
       Runtime: nodejs20.x
       Timeout: 30
@@ -33,13 +33,13 @@ Resources:
             BatchSize: 10
       Tags:
         project: efflux
-        component: lunard
+        component: medianet
 
   # Create a SQS queue for events to report
   ConversionEventsQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: lunard-postbacks-queue
+      QueueName: medianet-postbacks-queue
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
         maxReceiveCount: 3
@@ -49,26 +49,26 @@ Resources:
         - Key: operation
           Value: postbacks
         - Key: component
-          Value: lunard
+          Value: medianet
 
   # Create a DLQ for the ConversionEventsQueue
   ConversionEventsQueueDLQ:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: lunard-postbacks-queue-dlq
+      QueueName: medianet-postbacks-queue-dlq
       Tags:
         - Key: project
           Value: efflux
         - Key: operation
           Value: postbacks
         - Key: component
-          Value: lunard
+          Value: medianet
 
   # Log group for the lambda function
-  LunardReporterLogGroup:
+  MedianetReporterLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${LunardReporterFunction}
+      LogGroupName: !Sub /aws/lambda/${MedianetReporterFunction}
       RetentionInDays: 7
       Tags:
         - Key: project
@@ -76,10 +76,10 @@ Resources:
         - Key: operation
           Value: postbacks
         - Key: component
-          Value: lunard
+          Value: medianet
 
   # IAM role for lambda function
-  LunardReporterFunctionRole:
+  MedianetReporterFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -90,7 +90,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LunardReporterFunctionPolicy
+        - PolicyName: MedianetReporterFunctionPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -109,15 +109,15 @@ Resources:
         - Key: operation
           Value: postbacks
         - Key: component
-          Value: lunard
+          Value: medianet
 
 Outputs:
   CompilerFunctionVersion:
     Description: Lambda function version
-    Value: !Ref LunardReporterFunction.Version
+    Value: !Ref MedianetReporterFunction.Version
 
-  LunardQueueUrl:
-    Description: URL of the lunard Postbacks Queue
+  MedianetQueueUrl:
+    Description: URL of the medianet Postbacks Queue
     Export:
-      Name: LunardQueueUrl
+      Name: MedianetQueueUrl
     Value: !Ref ConversionEventsQueue
