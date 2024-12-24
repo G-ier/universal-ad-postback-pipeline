@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: Postback Handlers for Crossroads, TONIC MediaNet & SEDO, Lunard
+Description: Postback Handlers for Crossroads, TONIC MediaNet & SEDO, Lunard, Airfind
 
 Parameters:
   ShortLogsRetentionInDays:
@@ -84,7 +84,7 @@ Resources:
           DomainName: sftrklnk.com
           IpV6: true
           EvaluateTargetHealth: false
-      Description: Handles postbacks for SEDO, TONIC, MediaNet, Crossroads, Lunard
+      Description: Handles postbacks for SEDO, TONIC, MediaNet, Crossroads, Lunard, Airfind
       DefaultRouteSettings:
         DetailedMetricsEnabled: false
         DataTraceEnabled: false
@@ -247,6 +247,18 @@ Resources:
             ApiId: !Ref PbHandlerHttpApi
             Path: /efyuv1
             Method: POST
+        AirfindEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efafv1
+            Method: GET
+        AirfindEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efafv1
+            Method: POST
       Tags:
         project: efflux
         operation: postbacks
@@ -298,7 +310,7 @@ Resources:
       Handler: app.handler
       FunctionName: partners-postbacks-handler
       Role: !GetAtt PostbacksHandlerFunctionRole.Arn
-      Description: Handles postbacks for SEDO, TONIC, MediaNet & Crossroads
+      Description: Handles postbacks for SEDO, TONIC, Airfind, MediaNet & Crossroads
       Policies:
         - S3WritePolicy:
             BucketName: !Ref DataLakeBucketName

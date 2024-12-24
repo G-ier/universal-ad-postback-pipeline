@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Airfind Postbacks Controller
+
+Resources:
+
+  AirfindReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt AirfindReporterFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: Airfind-postbacks-controller
+      Description: Receives Airfind Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: airfind
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: airfind-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: airfind
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: airfind-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: airfind
+
+  # Log group for the lambda function
+  AirfindReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AirfindReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: airfind
+
+  # IAM role for lambda function
+  AirfindReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AirfindReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: airfind
+
+Outputs:
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref AirfindReporterFunction.Version
+
+  AirfindQueueUrl:
+    Description: URL of the airfind Postbacks Queue
+    Export:
+      Name: AirfindQueueUrl
+    Value: !Ref ConversionEventsQueue
