@@ -2,21 +2,17 @@
 const { createClient }              = require('@clickhouse/client')
 
 const defaultConfig = {
-  url: process.env.CLICKHOUSE_HOST,
-  username: process.env.CLICKHOUSE_USER,
-  password: process.env.CLICKHOUSE_PASSWORD,
-  database : process.env.CLICKHOUSE_DATABASE
+  url: process.env.CLICKHOUSE_URL
 };
 
-console.log("Default Config: ", defaultConfig);
-
 class ClickhouseConnection {
+  
   constructor() {
     if (!ClickhouseConnection.instance) {
       this.connection = createClient(defaultConfig);
       ClickhouseConnection.instance = this;
-      console.log("Clickhouse Connection Initialized");
     }
+    console.log("Clickhouse Connection Initialized");
     return ClickhouseConnection.instance;
   }
 

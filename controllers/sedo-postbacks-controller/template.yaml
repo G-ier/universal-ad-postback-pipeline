@@ -20,10 +20,7 @@ Resources:
       Environment:
         Variables:
           SQS_QUEUE_URL: !Ref ConversionEventsQueue
-          CLICKHOUSE_HOST: https://d06vxahi4g.us-east-1.aws.clickhouse.cloud:8443
-          CLICKHOUSE_PASSWORD: zq677PVJdg~sW
-          CLICKHOUSE_USER: default
-          CLICKHOUSE_DATABASE: efflux
+          CLICKHOUSE_URL: https://default:MN.9Mry_cjYN5@t9pw3ozzok.us-east-1.aws.clickhouse.cloud:8443/efflux
       Events:
         SqsEvent:
           Type: SQS
