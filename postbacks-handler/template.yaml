@@ -217,12 +217,18 @@ Resources:
             ApiId: !Ref PbHandlerHttpApi
             Path: /efepcv1
             Method: POST
-        MediaNetEvent:
+        MediaNetEventPOST:
           Type: HttpApi
           Properties:
             ApiId: !Ref PbHandlerHttpApi
             Path: /efmnv1
             Method: POST
+        MediaNetEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efmnv1
+            Method: GET
         AdsEventGET:
           Type: HttpApi
           Properties:
