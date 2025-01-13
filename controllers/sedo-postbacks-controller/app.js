@@ -2,7 +2,6 @@
 const { interpretSedoData } = require("./utils");
 const ClickhouseRepository = require("./clickhouse/repository");
 
-
 exports.handler = async (event, context) => {
 
   console.info(`Received Event ${JSON.stringify(event)}`);
