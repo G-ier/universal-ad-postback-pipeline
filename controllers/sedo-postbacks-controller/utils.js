@@ -6,6 +6,17 @@ function isOlderThan2Days(dateUtc) {
   return givenDate < twoDaysAgo; // Returns true if the given date is older than 2 days
 }
 
+// Converts a string to a consistent number using a simple hash algorithm
+function stringToNumber(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash);
+}
+
 // Interprets the data from the Sedo postback and returns a formatted object for Clickhouse
 const interpretSedoData = (data) => {
     const {
@@ -17,15 +28,17 @@ const interpretSedoData = (data) => {
         sub3,
         txid
     } = data.queryStringParameters;
-  
-    const received_at = new Date().getTime();
+
+    // Get the current time in seconds
+    const received_at = Math.floor(new Date().getTime() / 1000);
+    console.log(`Received at: ${received_at} seconds`)
 
     // Handle undefined click_timestamp by using received_at
     const click_timestamp = data.requestContext.timeEpoch;
     let clickDateTime;
     if (typeof click_timestamp !== 'undefined') {
         // Clickhouse needs a timestamp in milliseconds
-        clickDateTime = click_timestamp;
+        clickDateTime = Math.floor(click_timestamp / 1000);
     } else {
         clickDateTime = received_at; // Use received_at if click_timestamp is undefined. It is by default in milliseconds
     }
@@ -49,8 +62,9 @@ const interpretSedoData = (data) => {
     }
 
     return {
+        date_hour: clickDateTime,
         click_timestamp: clickDateTime,
-        nw_campaign_id: '',
+        nw_campaign_id: stringToNumber(domain),
         nw_campaign_name: domain,
         
         pixel_id: pixel_id,
