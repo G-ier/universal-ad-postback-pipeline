@@ -9,7 +9,6 @@ function isOlderThan2Days(dateUtc) {
 // Interprets the data from the Sedo postback and returns a formatted object for Clickhouse
 const interpretSedoData = (data) => {
     const {
-        click_timestamp,
         domain,
         kwp,
         revenue,
@@ -19,13 +18,14 @@ const interpretSedoData = (data) => {
         txid
     } = data.queryStringParameters;
   
-    const received_at = new Date(data.requestContext.timeEpoch).toISOString();
+    const received_at = new Date().getTime();
 
     // Handle undefined click_timestamp by using received_at
+    const click_timestamp = data.requestContext.timeEpoch;
     let clickDateTime;
     if (typeof click_timestamp !== 'undefined') {
         // Clickhouse needs a timestamp in milliseconds
-        clickDateTime = click_timestamp * 1000;
+        clickDateTime = click_timestamp;
     } else {
         clickDateTime = received_at; // Use received_at if click_timestamp is undefined. It is by default in milliseconds
     }

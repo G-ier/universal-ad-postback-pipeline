@@ -40,5 +40,4 @@ run-local:
 		--event events/event.json \
 		--region $(AWS_REGION) \
 		--profile $(AWS_PROFILE) \
-		--env-vars env.json \
 		--debug
