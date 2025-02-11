@@ -37,7 +37,7 @@ run-local:
 	@echo "Running function locally"
 	@sam local invoke \
 		--template template.yaml \
-		--event events/event.json \
+		--event events/event2.json \
 		--region $(AWS_REGION) \
 		--profile $(AWS_PROFILE) \
 		--debug

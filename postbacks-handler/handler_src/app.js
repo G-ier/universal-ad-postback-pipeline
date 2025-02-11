@@ -17,6 +17,7 @@ const CrossroadsQueueUrl = process.env.CROSSROADS_SQS_QUEUE_URL || "https://sqs.
 const AirfindQueueUrl = process.env.AIRFIND_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/airfind-postbacks-queue"
 
 exports.handler = async (event) => {
+  
   console.debug("Event: ", event);
   const message = JSON.parse(event.Records[0].body);
 
@@ -120,6 +121,7 @@ exports.handler = async (event) => {
 };
 
 async function assignNetwork(networkCode) {
+  
   const networkCodeMap = {
     efsdv1: "sedo",
     efmnv1: "medianet",

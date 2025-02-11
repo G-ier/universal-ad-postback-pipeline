@@ -7,8 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@clickhouse/client": "^1.10.0",
-    "clickhouse": "^2.6.0",
     "https": "^1.0.0",
     "moment-timezone": "^0.5.46"
   }

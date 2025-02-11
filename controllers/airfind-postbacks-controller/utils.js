@@ -38,16 +38,31 @@ function convertUnixTimestampToUTCTimestamp(unixTimestamp, initialTimeZone) {
 }
 
 function parseAirfindPBData(pb_event) {
+  const insight = pb_event.event.queryStringParameters;
+}
 
-  // MAPPING
-  // no mapping just yet
-
-  const insight = pb_event.event.queryStringParameters; // Starting point
-  
-  
-  
+async function routeToClickflare(s2s_event) {
+  console.debug("Routing to Clickflare", JSON.stringify(s2s_event, null, 2));
+  const clickflare_endpoint = process.env.CLICKFLARE_ENDPOINT;
+  try {
+    const response = await fetch(`${clickflare_endpoint}?${decodeAndFormatString(s2s_event.event.rawQueryString)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to route to Clickflare: ${response.statusText}`);
+    }
+    console.log("Successfully routed to Clickflare", response);
+    return true;
+  } catch (error) {
+    console.error("Error routing to Clickflare", error);
+    return false;
+  }
 }
 
 module.exports = {
-  parseAirfindPBData
+  parseAirfindPBData,
+  routeToClickflare
 };

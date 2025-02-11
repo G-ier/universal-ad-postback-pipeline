@@ -24,6 +24,7 @@ Resources:
       Environment:
         Variables:
           SQS_QUEUE_URL: !Ref ConversionEventsQueue
+          CLICKFLARE_ENDPOINT: "https://trc.queryzone.net/cf/cv"
       Events:
         SqsEvent:
           Type: SQS
@@ -112,6 +113,7 @@ Resources:
           Value: airfind
 
 Outputs:
+
   CompilerFunctionVersion:
     Description: Lambda function version
     Value: !Ref AirfindReporterFunction.Version

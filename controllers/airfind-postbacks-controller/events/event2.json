@@ -1,0 +1,46 @@
+{
+    "Records": [
+        {
+            "body": {
+                "is_get": true,
+                "event": {
+                    "version": "2.0",
+                    "routeKey": "GET /efafv1",
+                    "rawQueryString": "ct=kwblock&searchTerm=Rapid+Weight+Loss+Plan&brand=8656903307&reqId=9b56a492-25d9-4d3b-8411-47b8d99594e2&datetime=2025-02-11T08%3A31%3A55.737Z&clientID=51570&provider=googleCustomAd&URL=%2F%2Fapi.airfind.com%2FsponsoredSearchAds%2Fv1&country=AL&variant=3&style_name=7605143810&userId=0345adcca2e47745a1295530eb2e9e1a&sessionId=b082d0d4dca08e369920b8c9dffb09e8&searchAdShown=yes&index=NaN&userLocalDatetime=2025-02-11+09%3A31%3A55.737000+UTC&page=search&articleId=Military+Diet+Plan+for+Rapid+Weight+Loss&styleId1=7605143810",
+                    "rawPath": "/efafv1"
+                },
+                "headers": {
+                    "content-length": "0",
+                    "host": "sftrklnk.com",
+                    "user-agent": "GuzzleHttp/7",
+                    "x-amzn-trace-id": "Root=1-67640a25-58ba57dd061ccc150d4acd30",
+                    "x-forwarded-for": "46.137.22.65",
+                    "x-forwarded-port": "443",
+                    "x-forwarded-proto": "https"
+                },
+                "requestContext": {
+                    "accountId": "033156084586",
+                    "apiId": "wqoj7agtd7",
+                    "domainName": "sftrklnk.com",
+                    "domainPrefix": "sftrklnk",
+                    "http": {
+                        "method": "GET",
+                        "path": "/eftnv1",
+                        "protocol": "HTTP/1.1",
+                        "sourceIp": "46.137.22.65",
+                        "userAgent": "GuzzleHttp/7"
+                    },
+                    "requestId": "DCaF4gI6IAMEPBA=",
+                    "routeKey": "GET /eftnv1",
+                    "stage": "$default",
+                    "time": "19/Dec/2024:11:57:25 +0000",
+                    "timeEpoch": 1734609445239
+                },
+                "isBase64Encoded": false
+            },
+            "received_at": "1734609445303",
+            "event_network": "airfind",
+            "is_postback": "1"
+        }
+    ]
+}
