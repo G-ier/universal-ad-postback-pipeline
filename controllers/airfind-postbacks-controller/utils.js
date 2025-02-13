@@ -22,11 +22,11 @@ async function parseAirfindPBData(pb_event) {
 }
 
 async function routeToClickflare(s2s_event) {
-  console.debug("Routing to Clickflare", JSON.stringify(s2s_event, null, 2));
+  console.debug(`Routing to Clickflare [${s2s_event.event.requestContext.http.method}]`, JSON.stringify(s2s_event, null, 2));
   const clickflare_endpoint = process.env.CLICKFLARE_ENDPOINT;
   try {
     const response = await fetch(`${clickflare_endpoint}?${decodeAndFormatString(s2s_event.event.rawQueryString)}`, {
-      method: 'POST',
+      method: s2s_event.event.requestContext.http.method,
       headers: {
         'Content-Type': 'application/json',
       }
