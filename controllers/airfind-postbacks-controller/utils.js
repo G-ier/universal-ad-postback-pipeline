@@ -1,5 +1,3 @@
-const moment = require('moment-timezone');
-
 function decodeAndFormatString(encodedString) {
   try {
     // Decode the URL-encoded string
@@ -16,29 +14,11 @@ function decodeAndFormatString(encodedString) {
   }
 }
 
-function convertDateHourToUnixTimestamp(date, hour, timeZone) {
-  // Combine date and hour to create a full datetime string
-  const dateTime = `${date}T${hour.toString().padStart(2, "0")}:00:00`;
-
-  // Parse the datetime in the given time zone
-  const momentObj = moment.tz(dateTime, timeZone);
-
-  // Return the UNIX timestamp (in seconds)
-  return momentObj.unix();
-}
-
-function convertUnixTimestampToUTCTimestamp(unixTimestamp, initialTimeZone) {
-  // Parse the Unix timestamp (in seconds) in the given initial timezone
-  const momentObj = moment.unix(unixTimestamp).tz(initialTimeZone);
-
-  // Convert the moment object to UTC and format it
-  const utcTimestamp = momentObj.utc().format('YYYY-MM-DDTHH') + ':00:00';
-
-  return utcTimestamp;
-}
-
-function parseAirfindPBData(pb_event) {
-  const insight = pb_event.event.queryStringParameters;
+async function parseAirfindPBData(pb_event) {
+  const insight = pb_event.event.rawQueryString;
+  const urlSearchParams = new URLSearchParams(insight);
+  const insightObject = Object.fromEntries(urlSearchParams.entries());
+  return insightObject;
 }
 
 async function routeToClickflare(s2s_event) {

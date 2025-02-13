@@ -2,6 +2,7 @@
 
 // Local modules
 const { parseAirfindPBData, routeToClickflare } = require("./utils");
+const airfindPostbacksRepository = require("./MongoDBRepository");
 
 exports.handler = async (event, context) => {
 
@@ -25,10 +26,11 @@ exports.handler = async (event, context) => {
     }
 
     // Send the message to Clickflare
-    await routeToClickflare(parsedMessage);
+    if (process.env.ROUTE_TO_CLICKFLARE === "true") await routeToClickflare(parsedMessage);
 
-    // Store the message in our database
-    // TODO: We need to decide where and how to store the message
+    // Store the message on MongoDB
+    const pbData = await parseAirfindPBData(parsedMessage);
+    await airfindPostbacksRepository.create(pbData);
 
   } catch (e) {
     console.error(`Error saving event to ClickHouse ${e}`);

@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "https": "^1.0.0",
-    "moment-timezone": "^0.5.46"
+    "mongodb": "^6.13.0"
   }
 }
