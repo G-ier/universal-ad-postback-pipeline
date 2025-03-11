@@ -15,7 +15,7 @@ const AdsSQSQueueUrl = process.env.ADS_SQS_QUEUE_URL || "https://sqs.us-east-1.a
 const LunardQueueUrl = process.env.LUNARD_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/lunard-postbacks-queue"
 const CrossroadsQueueUrl = process.env.CROSSROADS_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/crossroads-postbacks-queue"
 const AirfindQueueUrl = process.env.AIRFIND_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/airfind-postbacks-queue"
-
+const ApexQueueUrl = process.env.APEX_SQS_QUEUE_URL || "https://sqs.us-east-1.amazonaws.com/033156084586/apex-postbacks-queue"
 exports.handler = async (event) => {
   
   console.debug("Event: ", event);
@@ -118,6 +118,16 @@ exports.handler = async (event) => {
     console.debug("SQS Response: ", response.$metadata.httpStatusCode);
   }
 
+  if (message.event_network === 'apex') {
+    // Push the message to a queue.
+    const sqsInput = {
+      QueueUrl: ApexQueueUrl,
+      MessageBody: JSON.stringify(message),
+    };
+    const response = await sqsClient.send(new SendMessageCommand(sqsInput));
+    console.debug("SQS Response: ", response.$metadata.httpStatusCode);
+  }
+
 };
 
 async function assignNetwork(networkCode) {
@@ -130,7 +140,8 @@ async function assignNetwork(networkCode) {
     efadsv1: "ads",
     efobmv1: "obmedia",
     efyuv1: "lunard",
-    efafv1: "airfind"
+    efafv1: "airfind",
+    efapv1: "apex"
   };
 
   if (networkCode.startsWith("efdav")) {

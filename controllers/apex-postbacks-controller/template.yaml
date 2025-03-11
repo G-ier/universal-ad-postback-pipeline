@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Apex Postbacks Controller
+
+Resources:
+
+  ApexReporterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt ApexReporterFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: Apex-postbacks-controller
+      Description: Receives Apex Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref ConversionEventsQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref ConversionEventsQueue
+          CLICKFLARE_ENDPOINT: "https://trc.queryzone.net/cf/cv"
+          ROUTE_TO_CLICKFLARE: false
+          MONGODB_URI: "mongodb+srv://efflux:LqnO1dv0ay5E4mNI@post-backs-test-cluster.uyz6b.mongodb.net/?retryWrites=true&w=majority&appName=Post-backs-Test-Cluster"
+          MONGODB_DATABASE: "post-backs-test-cluster"
+          RUN_CAPI: true
+          FB_TOKEN: EAAMmIslZA6PQBOZC17nVliJa6pmJX9oZAt48v7ZCVhc7sUELNiVqNFtWSVAZBRu3OpGcleZCjQUMqo2YAgFCFY9pDZChYvxQ3c1hg1zOmsxlcB8auhwKZCmZAhnD6kCvOuyJt8FUc1PZCMZAZBvOYf7l2A1WEqdTdzySWf0LbWtpubkAxkf15wzAXGFm9OMURVp5S10bkwZDZD
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt ConversionEventsQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: apex
+
+  # Create a SQS queue for events to report
+  ConversionEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: apex-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt ConversionEventsQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: apex
+
+  # Create a DLQ for the ConversionEventsQueue
+  ConversionEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: apex-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: apex
+
+  # Log group for the lambda function
+  ApexReporterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ApexReporterFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: apex
+
+  # IAM role for lambda function
+  ApexReporterFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApexReporterFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: apex
+
+Outputs:
+
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref ApexReporterFunction.Version
+
+  ApexQueueUrl:
+    Description: URL of the apex Postbacks Queue
+    Export:
+      Name: ApexQueueUrl
+    Value: !Ref ConversionEventsQueue

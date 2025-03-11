@@ -1,0 +1,46 @@
+{
+    "Records": [
+        {
+            "body": {
+                "is_get": true,
+                "event": {
+                    "version": "2.0",
+                    "routeKey": "GET /efafv1",
+                    "rawQueryString": "?ct=search&clientId=51570&brand=8656903307&variant=3&provider=&type=click&position=0&date=Thu%2C+13+Feb+2025+08%3A42%3A34+GMT&advertiser=&style=4748703987&filled=yes&rGuid=afscontainer1&page=search&articleId=Military+Diet+Plan+for+Rapid+Weight+Loss&styleId1=7605143810&adCopyTitle=Learn+About+Military+Diet+Plan+for+Rapid+Weight+Loss&suggestedTerms=Military+Diet+Plan+for+Rapid+Weight+Loss%2Crapid+weight+loss%2Crapid+weight+loss+plan%2Crapid+weight+loss+diet+plan%2Crapid+fat+loss+diet%2Crapid+weight+loss+diet+pills%2Cbest+diet+plan+for+rapid+weight+loss%2Crapid+weight+loss+diet%2Cbest+diet+rapid+weight+loss%2Cliquid+diet+for+rapid+weight+loss%2Cbest+diet+for+rapid+weight+loss%2Cliquid+diet+rapid+weight+loss%2Cdiet+for+rapid+weight+loss%2Cketo+diet+rapid+weight+loss%2Crapid+weight+loss+plant+based+diet%2Cmilitary+diet+plan+for+weight+loss%2Cmilitary+weight+loss+diet%2Csmoothie+diet+rapid+weight+loss+program&param10=R1&param11=7605143810&click_id=e2b658de-9fc5-48ac-b341-ebaa54fe82aa&use=1&rsToken=ChMIy5bAoaDAiwMVx4L9Bx21jhofEngBlLqpj2pBgp_SCwJ5uiymHqGHPgIQoC6_Ap4npRgc4p15Zq4rrTrNUQmA63HPc0Flww72tP2vk8T9edOoUT1k5v1yYNC8RlkYwWXcxI_g7xnP9700b08fB1wzD9aXYmpKRHyfeiPCSFX6DFeSklJISuGAqGpuoxAgAw&nb=0&nm=10&nx=274&ny=30&is=660x421&clkt=88&param1=Usa+Health+Initiatives",
+                    "rawPath": "/efafv1",
+                    "requestContext": {
+                        "accountId": "033156084586",
+                        "apiId": "wqoj7agtd7",
+                        "domainName": "sftrklnk.com",
+                        "domainPrefix": "sftrklnk",
+                        "http": {
+                            "method": "GET",
+                            "path": "/eftnv1",
+                            "protocol": "HTTP/1.1",
+                            "sourceIp": "46.137.22.65",
+                            "userAgent": "GuzzleHttp/7"
+                        },
+                        "requestId": "DCaF4gI6IAMEPBA=",
+                        "routeKey": "GET /eftnv1",
+                        "stage": "$default",
+                        "time": "19/Dec/2024:11:57:25 +0000",
+                        "timeEpoch": 1734609445239
+                    }
+                },
+                "headers": {
+                    "content-length": "0",
+                    "host": "sftrklnk.com",
+                    "user-agent": "GuzzleHttp/7",
+                    "x-amzn-trace-id": "Root=1-67640a25-58ba57dd061ccc150d4acd30",
+                    "x-forwarded-for": "46.137.22.65",
+                    "x-forwarded-port": "443",
+                    "x-forwarded-proto": "https"
+                },
+                "isBase64Encoded": false
+            },
+            "received_at": "1734609445303",
+            "event_network": "airfind",
+            "is_postback": "1"
+        }
+    ]
+}

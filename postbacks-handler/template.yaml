@@ -265,6 +265,18 @@ Resources:
             ApiId: !Ref PbHandlerHttpApi
             Path: /efafv1
             Method: POST
+        ApexEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efapv1
+            Method: GET
+        ApexEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efapv1
+            Method: POST
       Tags:
         project: efflux
         operation: postbacks
