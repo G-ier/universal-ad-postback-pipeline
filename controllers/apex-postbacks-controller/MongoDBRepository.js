@@ -23,6 +23,7 @@ class MongoDBRepository {
    */
   async create(data) {
     try {
+      console.log("Creating document in MongoDB.");
       const collection = await this.getCollection();
       const document = {
         ...data,
@@ -31,6 +32,9 @@ class MongoDBRepository {
 
       const result = await collection.insertOne(document);
       return result.insertedId;
+    } catch (error) {
+      console.error("Error creating document in MongoDB.", error);
+      throw error;
     } finally {
       await mongoClient.disconnect();
     }

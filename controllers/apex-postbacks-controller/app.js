@@ -26,29 +26,8 @@ exports.handler = async (event, context) => {
     }
 
     // Parse CAPI data
-    const capi_click_id = await parseCapiData(parsedMessage.event.rawQueryString);
-    console.debug("CAPI data", capiData);
-
-
-    // Retrieve the postback data from MongoDB
-    const pbData = await apexPostbacksRepository.findOne({clickid: capi_click_id});
-
-    // Regulator
-    var capiRegulator = false;
-    if (!pbData) {
-      capiRegulator = true;
-    } else {
-      capiRegulator = false;
-    }
-
-    if (capiRegulator) {
-
-      // Post the message to our custom reporter
-      if (process.env.RUN_CAPI === "true") await sendToReporterSqs(parsedMessage, capi_click_id);
-
-    } else {
-      console.debug("CAPI data is not a regulator", capiData);
-    }
+    //const capi_click_id = await parseCapiData(parsedMessage.event.rawQueryString);
+    //console.debug("CAPI data", capiData);
 
     // Store the message on MongoDB // Function is invariant to the network --> name irrelevant
     await apexPostbacksRepository.create(parsedMessage);
