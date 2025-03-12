@@ -78,5 +78,5 @@ class MongoDBRepository {
 
 }
 
-const airfindPostbacksRepository = Object.freeze(new MongoDBRepository('airfind-postbacks'));
+const airfindPostbacksRepository = Object.freeze(new MongoDBRepository('apex-postbacks'));
 module.exports = airfindPostbacksRepository;

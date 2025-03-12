@@ -1,7 +1,7 @@
 "use strict";
 
 // Local modules
-const { parseAirfindPBData, routeToClickflare, postCapiEvents, parseCapiData } = require("./utils");
+const { parseAirfindPBData, routeToClickflare, sendToReporterSqs, parseCapiData, postApexEvent } = require("./utils");
 const apexPostbacksRepository = require("./MongoDBRepository");
 
 exports.handler = async (event, context) => {
@@ -26,17 +26,38 @@ exports.handler = async (event, context) => {
     }
 
     // Parse CAPI data
-    const capiData = await parseCapiData(parsedMessage.event.rawQueryString);
+    const capi_click_id = await parseCapiData(parsedMessage.event.rawQueryString);
     console.debug("CAPI data", capiData);
 
-    // Post the message to Facebook
-    if (process.env.RUN_CAPI === "true") await postCapiEvents(capiData);
+
+    // Retrieve the postback data from MongoDB
+    const pbData = await apexPostbacksRepository.findOne({clickid: capi_click_id});
+
+    // Regulator
+    var capiRegulator = false;
+    if (!pbData) {
+      capiRegulator = true;
+    } else {
+      capiRegulator = false;
+    }
+
+    if (capiRegulator) {
+
+      // Post the message to our custom reporter
+      if (process.env.RUN_CAPI === "true") await sendToReporterSqs(parsedMessage, capi_click_id);
+
+    } else {
+      console.debug("CAPI data is not a regulator", capiData);
+    }
+
+    // Store the message on MongoDB // Function is invariant to the network --> name irrelevant
+    await apexPostbacksRepository.create(parsedMessage);
 
     // Send the message to Clickflare
     if (process.env.ROUTE_TO_CLICKFLARE === "true") await routeToClickflare(parsedMessage);
 
-    // Store the message on MongoDB // Function is invariant to the network --> name irrelevant
-    await apexPostbacksRepository.create(pbData);
+    // Send the message to Apex
+    if (process.env.ROUTE_TO_APEX === "true") await postApexEvent(pbData);
 
   } catch (e) {
     console.error(`Error processing postback event ${e}`);
