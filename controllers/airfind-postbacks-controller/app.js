@@ -1,7 +1,7 @@
 "use strict";
 
 // Local modules
-const { parseAirfindPBData, routeToClickflare } = require("./utils");
+const { parseAirfindPBData } = require("./utils");
 const airfindPostbacksRepository = require("./MongoDBRepository");
 
 exports.handler = async (event, context) => {
@@ -24,9 +24,6 @@ exports.handler = async (event, context) => {
     } catch (error) {
       console.error("Error parsing message as JSON", error);
     }
-
-    // Send the message to Clickflare
-    if (process.env.ROUTE_TO_CLICKFLARE === "true") await routeToClickflare(parsedMessage);
 
     // Store the message on MongoDB
     const pbData = await parseAirfindPBData(parsedMessage);
