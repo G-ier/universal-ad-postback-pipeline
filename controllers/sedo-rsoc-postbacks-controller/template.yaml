@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Apex Postbacks Controller
+
+Resources:
+
+  SedoRSOCPostbacksControllerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt SedoRSOCPostbacksControllerFunctionRole.Arn
+      Architectures:
+        - arm64
+      Handler: app.handler
+      FunctionName: sedo-rsoc-postbacks-controller
+      Description: Receives Sedo RSOC Postbacks from a Queue and forwards them to different
+        destinations
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 128
+      AutoPublishAlias: live
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !Ref SedoRSOCPostbacksQueue
+      Environment:
+        Variables:
+          SQS_QUEUE_URL: !Ref SedoRSOCPostbacksQueue
+          MONGODB_URI: "mongodb+srv://efflux:LqnO1dv0ay5E4mNI@post-backs-test-cluster.uyz6b.mongodb.net/?retryWrites=true&w=majority&appName=Post-backs-Test-Cluster"
+          MONGODB_DATABASE: "post-backs-test-cluster"
+          RUN_CAPI: false
+          FB_TOKEN: EAAMmIslZA6PQBOZC17nVliJa6pmJX9oZAt48v7ZCVhc7sUELNiVqNFtWSVAZBRu3OpGcleZCjQUMqo2YAgFCFY9pDZChYvxQ3c1hg1zOmsxlcB8auhwKZCmZAhnD6kCvOuyJt8FUc1PZCMZAZBvOYf7l2A1WEqdTdzySWf0LbWtpubkAxkf15wzAXGFm9OMURVp5S10bkwZDZD
+      Events:
+        SqsEvent:
+          Type: SQS
+          Properties:
+            Enabled: true
+            Queue: !GetAtt SedoRSOCPostbacksQueue.Arn
+            BatchSize: 10
+      Tags:
+        project: efflux
+        component: sedo-rsoc
+
+  # Create a SQS queue for events to report
+  SedoRSOCPostbacksQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: sedo-rsoc-postbacks-queue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt SedoRSOCPostbacksQueueDLQ.Arn
+        maxReceiveCount: 3
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo-rsoc
+
+  # Create a DLQ for the SedoRSOCPostbacksQueue
+  SedoRSOCPostbacksQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: sedo-rsoc-postbacks-queue-dlq
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo-rsoc
+
+  # Log group for the lambda function
+  SedoRSOCPostbacksControllerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${SedoRSOCPostbacksControllerFunction}
+      RetentionInDays: 7
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo-rsoc
+
+  # IAM role for lambda function
+  SedoRSOCPostbacksControllerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SedoRSOCPostbacksControllerFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: logs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: sqs:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+      Tags:
+        - Key: project
+          Value: efflux
+        - Key: operation
+          Value: postbacks
+        - Key: component
+          Value: sedo-rsoc
+
+Outputs:
+
+  CompilerFunctionVersion:
+    Description: Lambda function version
+    Value: !Ref SedoRSOCPostbacksControllerFunction.Version
+
+  SedoRSOCPostbacksQueueUrl:
+    Description: URL of the sedo-rsoc Postbacks Queue
+    Export:
+      Name: SedoRSOCPostbacksQueueUrl
+    Value: !Ref SedoRSOCPostbacksQueue

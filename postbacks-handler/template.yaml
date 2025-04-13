@@ -277,6 +277,18 @@ Resources:
             ApiId: !Ref PbHandlerHttpApi
             Path: /efapv1
             Method: POST
+        SedoRSOCEventGET:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efsrv1
+            Method: GET
+        SedoRSOCEventPOST:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref PbHandlerHttpApi
+            Path: /efsrv1
+            Method: POST
       Tags:
         project: efflux
         operation: postbacks
