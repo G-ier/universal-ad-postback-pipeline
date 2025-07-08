@@ -77,11 +77,11 @@ Resources:
           "$context.httpMethod $context.routeKey $context.protocol"
           $context.status $context.responseLength $context.requestId
       Domain:
-        DomainName: sftrklnk.com
+        DomainName: example.com
         CertificateArn: arn:aws:acm:us-east-1:033156084586:certificate/097330bf-2e97-4f10-8924-8a75f639aef6
         Route53:
           HostedZoneId: Z001515737XT3IMJEERCQ
-          DomainName: sftrklnk.com
+          DomainName: example.com
           IpV6: true
           EvaluateTargetHealth: false
       Description: Handles postbacks for SEDO, TONIC, MediaNet, Crossroads, Lunard, Airfind
