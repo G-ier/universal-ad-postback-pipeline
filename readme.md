@@ -27,8 +27,8 @@ A **production-grade Universal Ad Postback Pipeline** is a collection of serverl
  find . -name "package.json" -maxdepth 3 -execdir npm ci \;
 ```
 
-3. **Environment variables**
-Each Lambda reads its database credentials from environment variables defined in the corresponding `template.yaml`. Update **MONGODB_URI** in the following templates before deploying:
+3. **Secrets configuration**
+Update **MONGODB_URI** and **FB_TOKEN** in the following templates before deploying:
    - `controllers/apex-postbacks-controller/template.yaml`
    - `controllers/airfind-postbacks-controller/template.yaml`
    - `controllers/sedo-rsoc-postbacks-controller/template.yaml`
