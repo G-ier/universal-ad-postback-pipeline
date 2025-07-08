@@ -28,12 +28,36 @@ A **production-grade Universal Ad Postback Pipeline** is a collection of serverl
 ```
 
 3. **Secrets configuration**
-Update **MONGODB_URI** and **FB_TOKEN** in the following templates before deploying:
-   - `controllers/apex-postbacks-controller/template.yaml`
-   - `controllers/airfind-postbacks-controller/template.yaml`
-   - `controllers/sedo-rsoc-postbacks-controller/template.yaml`
+The following files contain secrets that need to be updated before deploying:
+
+   **Makefile Configuration Variables:**
+   - `postbacks-handler/Makefile`: Set `AWS_ACCOUNT_ID` and `NEW_RELIC_ACCOUNT_ID`
+   - `controllers/ads-postbacks-controller/Makefile`: Set `AWS_ACCOUNT_ID`
+   - All controller Makefiles: Set `AWS_ACCOUNT_ID` for your AWS account
+
+   **MongoDB Connection Strings:**
+   - `controllers/apex-postbacks-controller/template.yaml`: Set `MONGODB_URI` and `MONGODB_DATABASE`
+   - `controllers/airfind-postbacks-controller/template.yaml`: Set `MONGODB_URI` and `MONGODB_DATABASE`
+   - `controllers/sedo-rsoc-postbacks-controller/template.yaml`: Set `MONGODB_URI` and `MONGODB_DATABASE`
+
+   **ClickHouse Connection URLs:**
+   - `controllers/crossroads-postbacks-controller/ClickHouseConnection.js`: Update hardcoded ClickHouse URL
+   - `controllers/tonic-postbacks-controller/ClickHouseConnection.js`: Update hardcoded ClickHouse URL
+   - `controllers/medianet-postbacks-controller/ClickHouseConnection.js`: Update hardcoded ClickHouse URL
+   - `controllers/sedo-postbacks-controller/template.yaml`: Set `MONGO_URL` (marked as **MONGO_URL**)
+
+   **API Gateway & Infrastructure:**
+   - `postbacks-handler/template.yaml`: Update certificate ARN and domain name for your environment
+   - `postbacks-handler/handler_src/app.js`: Update hardcoded AWS account ID in SQS queue URLs
+
+   **Facebook Integration:**
+   - `controllers/apex-postbacks-controller/template.yaml`: Set `FB_TOKEN` for Facebook API integration
+   - `controllers/apex-postbacks-controller/utils.js`: Update hardcoded SQS queue URLs with your account ID
+
+   **Environment Variables:**
+   - `controllers/sedo-postbacks-controller/clickhouse/connection.js`: Set `CLICKHOUSE_URL` environment variable
    
-   You can also override them at deploy-time using `--parameter-overrides`.
+   You can also override template parameters at deploy-time using `--parameter-overrides`.
 
 ---
 

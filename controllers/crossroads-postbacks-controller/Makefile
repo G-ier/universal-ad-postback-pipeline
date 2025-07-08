@@ -1,5 +1,5 @@
 AWS_REGION ?= us-east-1
-AWS_ACCOUNT_ID ?= 033156084586
+AWS_ACCOUNT_ID ?= 
 AWS_PROFILE ?= new-efflux
 STACK_NAME ?= crossroads-postbacks-controller
 

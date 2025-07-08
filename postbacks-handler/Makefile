@@ -1,8 +1,8 @@
 AWS_REGION ?= us-east-1
-AWS_ACCOUNT_ID ?= 033156084586
+AWS_ACCOUNT_ID ?= 
 AWS_PROFILE ?= new-efflux
 STACK_NAME ?= Postbacks-Handler-API
-NEW_RELIC_ACCOUNT_ID ?= "515c6333-cb49-44ab-abf5-4c8ad31e3e67"
+NEW_RELIC_ACCOUNT_ID ?= 
 
 deploy-stack:
 	@echo "Deploying stack using SAM"
