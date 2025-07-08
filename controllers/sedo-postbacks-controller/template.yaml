@@ -20,7 +20,7 @@ Resources:
       Environment:
         Variables:
           SQS_QUEUE_URL: !Ref ConversionEventsQueue
-          CLICKHOUSE_URL: https://default:MN.9Mry_cjYN5@t9pw3ozzok.us-east-1.aws.clickhouse.cloud:8443/efflux
+          MONGO_URL: **MONGO_URL**
       Events:
         SqsEvent:
           Type: SQS

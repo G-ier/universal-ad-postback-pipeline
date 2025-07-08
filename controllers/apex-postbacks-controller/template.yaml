@@ -26,11 +26,11 @@ Resources:
           SQS_QUEUE_URL: !Ref ConversionEventsQueue
           CLICKFLARE_ENDPOINT: "https://trc.queryzone.net/cf/cv"
           ROUTE_TO_CLICKFLARE: false
-          MONGODB_URI: "mongodb+srv://efflux:LqnO1dv0ay5E4mNI@post-backs-test-cluster.uyz6b.mongodb.net/?retryWrites=true&w=majority&appName=Post-backs-Test-Cluster"
-          MONGODB_DATABASE: "post-backs-test-cluster"
+          MONGODB_URI: "mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority&appName=YourCluster"
+          MONGODB_DATABASE: "your-database-name"
           RUN_CAPI: false
           ROUTE_TO_APEX: false
-          FB_TOKEN: EAAMmIslZA6PQBOZC17nVliJa6pmJX9oZAt48v7ZCVhc7sUELNiVqNFtWSVAZBRu3OpGcleZCjQUMqo2YAgFCFY9pDZChYvxQ3c1hg1zOmsxlcB8auhwKZCmZAhnD6kCvOuyJt8FUc1PZCMZAZBvOYf7l2A1WEqdTdzySWf0LbWtpubkAxkf15wzAXGFm9OMURVp5S10bkwZDZD
+          # FB_TOKEN: Set this in your secrets.txt file and load via environment or parameter store
       Events:
         SqsEvent:
           Type: SQS
