@@ -1,5 +1,5 @@
 ## Universal Ad Postback Pipeline
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%E2%98%95%EF%B8%8F-ffdd00?style=flat-square)](https://buymeacoffee.com/gier)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%E2%98%95%EF%B8%8F-ffdd00?style=flat-square)](https://buymeacoffee.com/gier) [![System Status](https://img.shields.io/badge/Status-Online-green?style=flat-square&logo=checkmarx&logoColor=white)]()
 
 ### Introduction
 A **production-grade Universal Ad Postback Pipeline** is a collection of serverless micro-services that capture post-conversion web-hooks ("postbacks") from multiple ad networks—**Sedo, Tonic, Crossroads, MediaNet, Airfind, Apex**, and more—then normalise and stream them into high-performance analytics stores such as **MongoDB**.
